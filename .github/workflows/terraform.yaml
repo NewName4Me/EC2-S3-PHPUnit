@@ -27,6 +27,9 @@ jobs:
       - name: inicializar terraform
         run: terraform init
 
+      - name: lista de archivos
+        run: ls -la
+
       - name: plan de terraform
         run: terraform plan -no-color
 
