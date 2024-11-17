@@ -24,6 +24,9 @@ jobs:
       - name: Ir a la carpeta de Terraform
         run: cd Terraform
 
+      - name: comprobar
+        run: ls -la 
+
       - name: inicializar terraform
         run: terraform init
 
