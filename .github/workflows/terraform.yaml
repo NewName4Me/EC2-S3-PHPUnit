@@ -24,20 +24,17 @@ jobs:
       - name: comprobar antes
         run: ls -la
 
-      - name: Ir a la carpeta de Terraform
-        run: cd Terraform
-
-      - name: comprobar
-        run: ls -la
-
-      - name: inicializar terraform
-        run: terraform init
-
-      - name: plan de terraform
-        run: terraform plan -no-color
+      - name: inicializar terraform y planificar
+        run: |
+          cd Terraform
+          ls -la  # Verifica los archivos en la carpeta Terraform
+          terraform init
+          terraform plan -no-color
 
       - name: apply terraform
-        run: terraform apply -auto-approve
+        run: |
+          cd Terraform
+          terraform apply -auto-approve
 
       - name: Subir tfstate como artefacto
         uses: actions/upload-artifact@v4.4.3
@@ -68,11 +65,8 @@ jobs:
       - name: Hacer el set up de tf
         uses: hashicorp/setup-terraform@v3
 
-      - name: Ir a la carpeta de Terraform
-        run: cd Terraform
-
-      - name: inicializar terraform
-        run: terraform init
-
-      - name: destroy terraform
-        run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
+      - name: inicializar terraform y destruir
+        run: |
+          cd Terraform
+          terraform init
+          terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
