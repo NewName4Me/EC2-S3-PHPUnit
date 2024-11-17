@@ -22,19 +22,19 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: inicializar terraform
-        run: terraform init
+        run: cd Terraform && terraform init
 
       - name: plan de terraform
-        run: terraform plan -no-color
+        run: cd Terraform && terraform plan -no-color
 
       - name: apply terraform
-        run: terraform apply -auto-approve
+        run: cd Terraform && terraform apply -auto-approve
 
       - name: Subir tfstate como artefacto
         uses: actions/upload-artifact@v4.4.3
         with:
           name: terraform-tfstate
-          path: terraform.tfstate
+          path: Terraform/terraform.tfstate
 
   destroy: #! Job para destruir la infraestructura
     runs-on: ubuntu-latest
@@ -46,7 +46,7 @@ jobs:
         uses: actions/download-artifact@v4.1.8
         with:
           name: terraform-tfstate
-          path: .
+          path: Terraform/
 
       - name: pasar mis tokens a aws
         uses: aws-actions/configure-aws-credentials@v4
@@ -60,10 +60,10 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: inicializar terraform
-        run: terraform init
+        run: cd Terraform && terraform init
 
       - name: destroy terraform
-        run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
+        run: cd Terraform && terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
 
   generate-doc: #! Generar documentación de jsdoc
     runs-on: ubuntu-latest
@@ -99,3 +99,4 @@ jobs:
         env:
           #!IMPORTANT tuve que cambiar los permisos de actions a read and write
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
