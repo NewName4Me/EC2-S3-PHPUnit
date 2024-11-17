@@ -1,0 +1,101 @@
+name: deploy-destroy-jsdoc
+
+on:
+  workflow_dispatch: #! Permite ejecutar manualmente el flujo de trabajo
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.1
+
+      - name: pasar mis tokens a aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: "us-east-1"
+
+      - name: Hacer el set up de tf
+        uses: hashicorp/setup-terraform@v3
+
+      - name: inicializar terraform
+        run: terraform init
+
+      - name: plan de terraform
+        run: terraform plan -no-color
+
+      - name: apply terraform
+        run: terraform apply -auto-approve
+
+      - name: Subir tfstate como artefacto
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: terraform-tfstate
+          path: terraform.tfstate
+
+  destroy: #! Job para destruir la infraestructura
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.1
+
+      - name: Descargar tfstate como artefacto
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: terraform-tfstate
+          path: .
+
+      - name: pasar mis tokens a aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: "us-east-1"
+
+      - name: Hacer el set up de tf
+        uses: hashicorp/setup-terraform@v3
+
+      - name: inicializar terraform
+        run: terraform init
+
+      - name: destroy terraform
+        run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
+
+  generate-doc: #! Generar documentación de jsdoc
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.1
+
+      - name: Instalar Node.js y JSDoc
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: "20.15.1"
+
+      - run: npm install -g jsdoc #! instalacion global para evitar configurar package.json
+
+      - name: Limpiar la carpeta out (eliminar archivos generados previamente)
+        run: rm -rf web/out/* #! Esto elimina todo el contenido de la carpeta out
+
+      - name: Generar documentación de JSDoc
+        run: |
+          cd web
+          jsdoc js -d out #!indico el directorio de salida como *out*
+
+      - name: Configurar git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit y push de la documentación generada
+        run: |
+          git add web/out
+          git commit -m "Actualizar documentación JSDoc"
+          git push --force origin main #!el force es por problemas de escritura del bot(creo)
+        env:
+          #!IMPORTANT tuve que cambiar los permisos de actions a read and write
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
