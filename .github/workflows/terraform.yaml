@@ -10,6 +10,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.1
 
+      - name: cd a la carpeta Terraform
+        run: cd Terraform
+
       - name: pasar mis tokens a aws
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -22,19 +25,19 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: inicializar terraform
-        run: cd Terraform && terraform init
+        run: terraform init
 
       - name: plan de terraform
-        run: cd Terraform && terraform plan -no-color
+        run: terraform plan -no-color
 
       - name: apply terraform
-        run: cd Terraform && terraform apply -auto-approve
+        run: terraform apply -auto-approve
 
       - name: Subir tfstate como artefacto
         uses: actions/upload-artifact@v4.4.3
         with:
           name: terraform-tfstate
-          path: Terraform/terraform.tfstate
+          path: terraform.tfstate
 
   destroy: #! Job para destruir la infraestructura
     runs-on: ubuntu-latest
@@ -46,7 +49,10 @@ jobs:
         uses: actions/download-artifact@v4.1.8
         with:
           name: terraform-tfstate
-          path: Terraform/
+          path: .
+
+      - name: cd a la carpeta Terraform
+        run: cd Terraform
 
       - name: pasar mis tokens a aws
         uses: aws-actions/configure-aws-credentials@v4
@@ -60,10 +66,10 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: inicializar terraform
-        run: cd Terraform && terraform init
+        run: terraform init
 
       - name: destroy terraform
-        run: cd Terraform && terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
+        run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
 
   generate-doc: #! Generar documentación de jsdoc
     runs-on: ubuntu-latest
@@ -84,7 +90,7 @@ jobs:
       - name: Generar documentación de JSDoc
         run: |
           cd web
-          jsdoc js -d out #!indico el directorio de salida como *out*
+          jsdoc js -d out #!indico el directorio de salida como *out* 
 
       - name: Configurar git
         run: |
