@@ -21,11 +21,14 @@ jobs:
       - name: Hacer el set up de tf
         uses: hashicorp/setup-terraform@v3
 
+      - name: comprobar antes
+        run: ls -la
+
       - name: Ir a la carpeta de Terraform
         run: cd Terraform
 
       - name: comprobar
-        run: ls -la 
+        run: ls -la
 
       - name: inicializar terraform
         run: terraform init
