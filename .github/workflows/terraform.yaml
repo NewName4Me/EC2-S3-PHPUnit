@@ -1,7 +1,7 @@
-name: deploy-destroy-jsdoc
+name: deploy-destroy
 
 on:
-  workflow_dispatch: #! Permite ejecutar manualmente el flujo de trabajo
+  workflow_dispatch: # Permite ejecutar manualmente el flujo de trabajo
 
 jobs:
   deploy:
@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v4.2.1
 
       - name: cd a la carpeta Terraform
-        run: cd Terraform
+        run: cd Terraform # Cambié la ruta para estar en la carpeta Terraform
 
       - name: pasar mis tokens a aws
         uses: aws-actions/configure-aws-credentials@v4
@@ -37,9 +37,9 @@ jobs:
         uses: actions/upload-artifact@v4.4.3
         with:
           name: terraform-tfstate
-          path: terraform.tfstate
+          path: Terraform/terraform.tfstate # Cambié la ruta aquí para reflejar la estructura de tu repo
 
-  destroy: #! Job para destruir la infraestructura
+  destroy: # Job para destruir la infraestructura
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -49,10 +49,10 @@ jobs:
         uses: actions/download-artifact@v4.1.8
         with:
           name: terraform-tfstate
-          path: .
+          path: ./
 
       - name: cd a la carpeta Terraform
-        run: cd Terraform
+        run: cd Terraform # Cambié la ruta para estar en la carpeta Terraform
 
       - name: pasar mis tokens a aws
         uses: aws-actions/configure-aws-credentials@v4
@@ -69,40 +69,4 @@ jobs:
         run: terraform init
 
       - name: destroy terraform
-        run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
-
-  generate-doc: #! Generar documentación de jsdoc
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.1
-
-      - name: Instalar Node.js y JSDoc
-        uses: actions/setup-node@v4.1.0
-        with:
-          node-version: "20.15.1"
-
-      - run: npm install -g jsdoc #! instalacion global para evitar configurar package.json
-
-      - name: Limpiar la carpeta out (eliminar archivos generados previamente)
-        run: rm -rf web/out/* #! Esto elimina todo el contenido de la carpeta out
-
-      - name: Generar documentación de JSDoc
-        run: |
-          cd web
-          jsdoc js -d out #!indico el directorio de salida como *out* 
-
-      - name: Configurar git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Commit y push de la documentación generada
-        run: |
-          git add web/out
-          git commit -m "Actualizar documentación JSDoc"
-          git push --force origin main #!el force es por problemas de escritura del bot(creo)
-        env:
-          #!IMPORTANT tuve que cambiar los permisos de actions a read and write
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        run: terraform destroy -auto-approve # Destruir la infraestructura automáticamente
