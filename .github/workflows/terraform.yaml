@@ -1,7 +1,7 @@
 name: deploy-destroy
 
 on:
-  workflow_dispatch: # Permite ejecutar manualmente el flujo de trabajo
+  workflow_dispatch: #! Permite ejecutar manualmente el flujo de trabajo
 
 jobs:
   deploy:
@@ -21,17 +21,14 @@ jobs:
       - name: Hacer el set up de tf
         uses: hashicorp/setup-terraform@v3
 
+      - name: Ir a la carpeta de Terraform
+        run: cd Terraform
+
       - name: inicializar terraform
         run: terraform init
 
-      - name: lista de archivos
-        run: ls -la
-
       - name: plan de terraform
-        run: cd Terraform && terraform plan -no-color
-
-      - name: lista de archivos2
-        run: ls -la
+        run: terraform plan -no-color
 
       - name: apply terraform
         run: terraform apply -auto-approve
@@ -40,9 +37,9 @@ jobs:
         uses: actions/upload-artifact@v4.4.3
         with:
           name: terraform-tfstate
-          path: Terraform/terraform.tfstate # Cambié la ruta aquí para reflejar la estructura de tu repo
+          path: Terraform/terraform.tfstate
 
-  destroy: # Job para destruir la infraestructura
+  destroy: #! Job para destruir la infraestructura
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -65,8 +62,11 @@ jobs:
       - name: Hacer el set up de tf
         uses: hashicorp/setup-terraform@v3
 
+      - name: Ir a la carpeta de Terraform
+        run: cd Terraform
+
       - name: inicializar terraform
         run: terraform init
 
       - name: destroy terraform
-        run: terraform destroy -auto-approve # Destruir la infraestructura automáticamente
+        run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
