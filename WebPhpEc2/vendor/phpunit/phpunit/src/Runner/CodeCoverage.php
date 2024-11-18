@@ -37,11 +37,7 @@ use SebastianBergmann\Timer\NoActiveTimerException;
 use SebastianBergmann\Timer\Timer;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @codeCoverageIgnore
  */
 final class CodeCoverage
 {
@@ -53,7 +49,7 @@ final class CodeCoverage
     private ?Timer $timer                                               = null;
 
     /**
-     * @var array<string,list<int>>
+     * @psalm-var array<string,list<int>>
      */
     private array $linesToBeIgnored = [];
 
@@ -124,7 +120,7 @@ final class CodeCoverage
     }
 
     /**
-     * @phpstan-assert-if-true !null $this->instance
+     * @psalm-assert-if-true !null $this->instance
      */
     public function isActive(): bool
     {
@@ -167,10 +163,6 @@ final class CodeCoverage
         $this->collecting = true;
     }
 
-    /**
-     * @param array<string,list<int>>|false $linesToBeCovered
-     * @param array<string,list<int>>       $linesToBeUsed
-     */
     public function stop(bool $append = true, array|false $linesToBeCovered = [], array $linesToBeUsed = []): void
     {
         if (!$this->collecting) {
@@ -316,9 +308,7 @@ final class CodeCoverage
             $textReport = $processor->process($this->codeCoverage(), $configuration->colors());
 
             if ($configuration->coverageText() === 'php://stdout') {
-                if (!$configuration->noOutput() && !$configuration->debug()) {
-                    $printer->print($textReport);
-                }
+                $printer->print($textReport);
             } else {
                 file_put_contents($configuration->coverageText(), $textReport);
             }
@@ -341,7 +331,7 @@ final class CodeCoverage
     }
 
     /**
-     * @param array<string,list<int>> $linesToBeIgnored
+     * @psalm-param array<string,list<int>> $linesToBeIgnored
      */
     public function ignoreLines(array $linesToBeIgnored): void
     {
@@ -349,7 +339,7 @@ final class CodeCoverage
     }
 
     /**
-     * @return array<string,list<int>>
+     * @psalm-return array<string,list<int>>
      */
     public function linesToBeIgnored(): array
     {

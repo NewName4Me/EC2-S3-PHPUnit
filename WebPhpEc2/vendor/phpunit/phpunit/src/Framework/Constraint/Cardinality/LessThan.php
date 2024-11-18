@@ -9,14 +9,14 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
-use PHPUnit\Util\Exporter;
+use SebastianBergmann\Exporter\Exporter;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class LessThan extends Constraint
+final readonly class LessThan extends Constraint
 {
-    private readonly mixed $value;
+    private mixed $value;
 
     public function __construct(mixed $value)
     {
@@ -28,7 +28,7 @@ final class LessThan extends Constraint
      */
     public function toString(): string
     {
-        return 'is less than ' . Exporter::export($this->value);
+        return 'is less than ' . (new Exporter)->export($this->value);
     }
 
     /**

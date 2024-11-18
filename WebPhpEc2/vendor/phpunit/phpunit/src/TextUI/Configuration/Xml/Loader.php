@@ -27,11 +27,9 @@ use function trim;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use DOMNodeList;
 use DOMXPath;
 use PHPUnit\Runner\TestSuiteSorter;
 use PHPUnit\Runner\Version;
-use PHPUnit\TextUI\Configuration\Configuration;
 use PHPUnit\TextUI\Configuration\Constant;
 use PHPUnit\TextUI\Configuration\ConstantCollection;
 use PHPUnit\TextUI\Configuration\Directory;
@@ -76,8 +74,6 @@ use SebastianBergmann\CodeCoverage\Report\Html\Colors;
 use SebastianBergmann\CodeCoverage\Report\Thresholds;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class Loader
@@ -110,8 +106,6 @@ final readonly class Loader
         }
 
         $configurationFileRealpath = realpath($filename);
-
-        assert($configurationFileRealpath !== false && $configurationFileRealpath !== '');
 
         return new LoadedFromFileConfiguration(
             $configurationFileRealpath,
@@ -197,31 +191,19 @@ final readonly class Loader
     {
         $extensionBootstrappers = [];
 
-        $bootstrapNodes = $xpath->query('extensions/bootstrap');
-
-        assert($bootstrapNodes instanceof DOMNodeList);
-
-        foreach ($bootstrapNodes as $bootstrap) {
+        foreach ($xpath->query('extensions/bootstrap') as $bootstrap) {
             assert($bootstrap instanceof DOMElement);
 
             $parameters = [];
 
-            $parameterNodes = $xpath->query('parameter', $bootstrap);
-
-            assert($parameterNodes instanceof DOMNodeList);
-
-            foreach ($parameterNodes as $parameter) {
+            foreach ($xpath->query('parameter', $bootstrap) as $parameter) {
                 assert($parameter instanceof DOMElement);
 
                 $parameters[$parameter->getAttribute('name')] = $parameter->getAttribute('value');
             }
 
-            $className = $bootstrap->getAttribute('class');
-
-            assert($className !== '');
-
             $extensionBootstrappers[] = new ExtensionBootstrap(
-                $className,
+                $bootstrap->getAttribute('class'),
                 $parameters,
             );
         }
@@ -230,7 +212,7 @@ final readonly class Loader
     }
 
     /**
-     * @return non-empty-string
+     * @psalm-return non-empty-string
      */
     private function toAbsolutePath(string $filename, string $path): string
     {
@@ -274,9 +256,6 @@ final readonly class Loader
         $ignoreSuppressionOfPhpNotices      = false;
         $ignoreSuppressionOfWarnings        = false;
         $ignoreSuppressionOfPhpWarnings     = false;
-        $ignoreSelfDeprecations             = false;
-        $ignoreDirectDeprecations           = false;
-        $ignoreIndirectDeprecations         = false;
 
         $element = $this->element($xpath, 'source');
 
@@ -297,34 +276,6 @@ final readonly class Loader
             $ignoreSuppressionOfPhpNotices      = $this->getBooleanAttribute($element, 'ignoreSuppressionOfPhpNotices', false);
             $ignoreSuppressionOfWarnings        = $this->getBooleanAttribute($element, 'ignoreSuppressionOfWarnings', false);
             $ignoreSuppressionOfPhpWarnings     = $this->getBooleanAttribute($element, 'ignoreSuppressionOfPhpWarnings', false);
-            $ignoreSelfDeprecations             = $this->getBooleanAttribute($element, 'ignoreSelfDeprecations', false);
-            $ignoreDirectDeprecations           = $this->getBooleanAttribute($element, 'ignoreDirectDeprecations', false);
-            $ignoreIndirectDeprecations         = $this->getBooleanAttribute($element, 'ignoreIndirectDeprecations', false);
-        }
-
-        $deprecationTriggers = [
-            'functions' => [],
-            'methods'   => [],
-        ];
-
-        $functionNodes = $xpath->query('source/deprecationTrigger/function');
-
-        assert($functionNodes instanceof DOMNodeList);
-
-        foreach ($functionNodes as $functionNode) {
-            assert($functionNode instanceof DOMElement);
-
-            $deprecationTriggers['functions'][] = $functionNode->textContent;
-        }
-
-        $methodNodes = $xpath->query('source/deprecationTrigger/method');
-
-        assert($methodNodes instanceof DOMNodeList);
-
-        foreach ($methodNodes as $methodNode) {
-            assert($methodNode instanceof DOMElement);
-
-            $deprecationTriggers['methods'][] = $methodNode->textContent;
         }
 
         return new Source(
@@ -344,10 +295,6 @@ final readonly class Loader
             $ignoreSuppressionOfPhpNotices,
             $ignoreSuppressionOfWarnings,
             $ignoreSuppressionOfPhpWarnings,
-            $deprecationTriggers,
-            $ignoreSelfDeprecations,
-            $ignoreDirectDeprecations,
-            $ignoreIndirectDeprecations,
         );
     }
 
@@ -543,11 +490,7 @@ final readonly class Loader
     {
         $directories = [];
 
-        $directoryNodes = $xpath->query($query);
-
-        assert($directoryNodes instanceof DOMNodeList);
-
-        foreach ($directoryNodes as $directoryNode) {
+        foreach ($xpath->query($query) as $directoryNode) {
             assert($directoryNode instanceof DOMElement);
 
             $directoryPath = $directoryNode->textContent;
@@ -570,14 +513,10 @@ final readonly class Loader
     {
         $files = [];
 
-        $fileNodes = $xpath->query($query);
+        foreach ($xpath->query($query) as $file) {
+            assert($file instanceof DOMNode);
 
-        assert($fileNodes instanceof DOMNodeList);
-
-        foreach ($fileNodes as $fileNode) {
-            assert($fileNode instanceof DOMNode);
-
-            $filePath = $fileNode->textContent;
+            $filePath = $file->textContent;
 
             if ($filePath) {
                 $files[] = new File($this->toAbsolutePath($filename, $filePath));
@@ -592,24 +531,16 @@ final readonly class Loader
         $include = [];
         $exclude = [];
 
-        $groupNodes = $xpath->query('groups/include/group');
+        foreach ($xpath->query('groups/include/group') as $group) {
+            assert($group instanceof DOMNode);
 
-        assert($groupNodes instanceof DOMNodeList);
-
-        foreach ($groupNodes as $groupNode) {
-            assert($groupNode instanceof DOMNode);
-
-            $include[] = new Group($groupNode->textContent);
+            $include[] = new Group($group->textContent);
         }
 
-        $groupNodes = $xpath->query('groups/exclude/group');
+        foreach ($xpath->query('groups/exclude/group') as $group) {
+            assert($group instanceof DOMNode);
 
-        assert($groupNodes instanceof DOMNodeList);
-
-        foreach ($groupNodes as $groupNode) {
-            assert($groupNode instanceof DOMNode);
-
-            $exclude[] = new Group($groupNode->textContent);
+            $exclude[] = new Group($group->textContent);
         }
 
         return new Groups(
@@ -673,11 +604,7 @@ final readonly class Loader
     {
         $includePaths = [];
 
-        $includePathNodes = $xpath->query('php/includePath');
-
-        assert($includePathNodes instanceof DOMNodeList);
-
-        foreach ($includePathNodes as $includePath) {
+        foreach ($xpath->query('php/includePath') as $includePath) {
             assert($includePath instanceof DOMNode);
 
             $path = $includePath->textContent;
@@ -689,11 +616,7 @@ final readonly class Loader
 
         $iniSettings = [];
 
-        $iniNodes = $xpath->query('php/ini');
-
-        assert($iniNodes instanceof DOMNodeList);
-
-        foreach ($iniNodes as $ini) {
+        foreach ($xpath->query('php/ini') as $ini) {
             assert($ini instanceof DOMElement);
 
             $iniSettings[] = new IniSetting(
@@ -704,17 +627,13 @@ final readonly class Loader
 
         $constants = [];
 
-        $constNodes = $xpath->query('php/const');
+        foreach ($xpath->query('php/const') as $const) {
+            assert($const instanceof DOMElement);
 
-        assert($constNodes instanceof DOMNodeList);
-
-        foreach ($constNodes as $constNode) {
-            assert($constNode instanceof DOMElement);
-
-            $value = $constNode->getAttribute('value');
+            $value = $const->getAttribute('value');
 
             $constants[] = new Constant(
-                $constNode->getAttribute('name'),
+                $const->getAttribute('name'),
                 $this->getValue($value),
             );
         }
@@ -731,11 +650,7 @@ final readonly class Loader
         ];
 
         foreach (['var', 'env', 'post', 'get', 'cookie', 'server', 'files', 'request'] as $array) {
-            $varNodes = $xpath->query('php/' . $array);
-
-            assert($varNodes instanceof DOMNodeList);
-
-            foreach ($varNodes as $var) {
+            foreach ($xpath->query('php/' . $array) as $var) {
                 assert($var instanceof DOMElement);
 
                 $name     = $var->getAttribute('name');
@@ -864,12 +779,6 @@ final readonly class Loader
             $beStrictAboutCoverageMetadata = $this->getBooleanAttribute($document->documentElement, 'beStrictAboutCoverageMetadata', false);
         }
 
-        $shortenArraysForExportThreshold = $this->getIntegerAttribute($document->documentElement, 'shortenArraysForExportThreshold', 0);
-
-        if ($shortenArraysForExportThreshold < 0) {
-            $shortenArraysForExportThreshold = 0;
-        }
-
         return new PHPUnit(
             $cacheDirectory,
             $this->getBooleanAttribute($document->documentElement, 'cacheResult', true),
@@ -879,7 +788,6 @@ final readonly class Loader
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnIncompleteTests', false),
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnSkippedTests', false),
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnTestsThatTriggerDeprecations', false),
-            $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnPhpunitDeprecations', false),
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnTestsThatTriggerErrors', false),
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnTestsThatTriggerNotices', false),
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnTestsThatTriggerWarnings', false),
@@ -888,7 +796,6 @@ final readonly class Loader
             $bootstrap,
             $this->getBooleanAttribute($document->documentElement, 'processIsolation', false),
             $this->getBooleanAttribute($document->documentElement, 'failOnDeprecation', false),
-            $this->getBooleanAttribute($document->documentElement, 'failOnPhpunitDeprecation', false),
             $this->getBooleanAttribute($document->documentElement, 'failOnEmptyTestSuite', false),
             $this->getBooleanAttribute($document->documentElement, 'failOnIncomplete', false),
             $this->getBooleanAttribute($document->documentElement, 'failOnNotice', false),
@@ -921,24 +828,22 @@ final readonly class Loader
             $this->getBooleanAttribute($document->documentElement, 'backupGlobals', false),
             $backupStaticProperties,
             $this->getBooleanAttribute($document->documentElement, 'testdox', false),
-            $this->getBooleanAttribute($document->documentElement, 'testdoxSummary', false),
             $this->getBooleanAttribute($document->documentElement, 'controlGarbageCollector', false),
             $this->getIntegerAttribute($document->documentElement, 'numberOfTestsBeforeGarbageCollection', 100),
-            $shortenArraysForExportThreshold,
         );
     }
 
     private function getColors(DOMDocument $document): string
     {
-        $colors = Configuration::COLOR_DEFAULT;
+        $colors = \PHPUnit\TextUI\Configuration\Configuration::COLOR_DEFAULT;
 
         if ($document->documentElement->hasAttribute('colors')) {
             /* only allow boolean for compatibility with previous versions
               'always' only allowed from command line */
             if ($this->getBoolean($document->documentElement->getAttribute('colors'), false)) {
-                $colors = Configuration::COLOR_AUTO;
+                $colors = \PHPUnit\TextUI\Configuration\Configuration::COLOR_AUTO;
             } else {
-                $colors = Configuration::COLOR_NEVER;
+                $colors = \PHPUnit\TextUI\Configuration\Configuration::COLOR_NEVER;
             }
         }
 
@@ -1095,7 +1000,7 @@ final readonly class Loader
     }
 
     /**
-     * @return list<DOMElement>
+     * @psalm-return list<DOMElement>
      */
     private function getTestSuiteElements(DOMXPath $xpath): array
     {
@@ -1103,12 +1008,8 @@ final readonly class Loader
 
         $testSuiteNodes = $xpath->query('testsuites/testsuite');
 
-        assert($testSuiteNodes instanceof DOMNodeList);
-
         if ($testSuiteNodes->length === 0) {
             $testSuiteNodes = $xpath->query('testsuite');
-
-            assert($testSuiteNodes instanceof DOMNodeList);
         }
 
         if ($testSuiteNodes->length === 1) {
@@ -1131,8 +1032,6 @@ final readonly class Loader
     private function element(DOMXPath $xpath, string $element): ?DOMElement
     {
         $nodes = $xpath->query($element);
-
-        assert($nodes instanceof DOMNodeList);
 
         if ($nodes->length === 1) {
             $node = $nodes->item(0);

@@ -11,32 +11,35 @@ namespace PHPUnit\Runner\Filter;
 
 use function end;
 use function preg_match;
-use function sprintf;
-use function str_replace;
-use function substr;
 use PHPUnit\Framework\Test;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestSuite;
-use PHPUnit\Runner\PhptTestCase;
 use RecursiveFilterIterator;
 use RecursiveIterator;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 abstract class NameFilterIterator extends RecursiveFilterIterator
 {
     /**
-     * @var non-empty-string
+     * @psalm-var non-empty-string
      */
     private readonly string $regularExpression;
+
+    /**
+     * @psalm-var ?int
+     */
     private readonly ?int $dataSetMinimum;
+
+    /**
+     * @psalm-var ?int
+     */
     private readonly ?int $dataSetMaximum;
 
     /**
-     * @param RecursiveIterator<int, Test> $iterator
-     * @param non-empty-string             $filter
+     * @psalm-param RecursiveIterator<int, Test> $iterator
+     * @psalm-param non-empty-string $filter
      */
     public function __construct(RecursiveIterator $iterator, string $filter)
     {
@@ -57,7 +60,7 @@ abstract class NameFilterIterator extends RecursiveFilterIterator
             return true;
         }
 
-        if ($test instanceof PhptTestCase) {
+        if (!$test instanceof TestCase) {
             return false;
         }
 
@@ -70,68 +73,13 @@ abstract class NameFilterIterator extends RecursiveFilterIterator
             $accepted = $set >= $this->dataSetMinimum && $set <= $this->dataSetMaximum;
         }
 
-        return $this->doAccept($accepted);
+        return $accepted;
     }
-
-    abstract protected function doAccept(bool $result): bool;
 
     /**
-     * @param non-empty-string $filter
+     * @psalm-param non-empty-string $filter
      *
-     * @return array{regularExpression: non-empty-string, dataSetMinimum: ?int, dataSetMaximum: ?int}
+     * @psalm-return array{regularExpression: non-empty-string, dataSetMinimum: ?int, dataSetMaximum: ?int}
      */
-    private function prepareFilter(string $filter): array
-    {
-        $dataSetMinimum = null;
-        $dataSetMaximum = null;
-
-        if (preg_match('/[a-zA-Z0-9]/', substr($filter, 0, 1)) === 1 || @preg_match($filter, '') === false) {
-            // Handles:
-            //  * testAssertEqualsSucceeds#4
-            //  * testAssertEqualsSucceeds#4-8
-            if (preg_match('/^(.*?)#(\d+)(?:-(\d+))?$/', $filter, $matches)) {
-                if (isset($matches[3]) && $matches[2] < $matches[3]) {
-                    $filter = sprintf(
-                        '%s.*with data set #(\d+)$',
-                        $matches[1],
-                    );
-
-                    $dataSetMinimum = (int) $matches[2];
-                    $dataSetMaximum = (int) $matches[3];
-                } else {
-                    $filter = sprintf(
-                        '%s.*with data set #%s$',
-                        $matches[1],
-                        $matches[2],
-                    );
-                }
-            } // Handles:
-            //  * testDetermineJsonError@JSON_ERROR_NONE
-            //  * testDetermineJsonError@JSON.*
-            elseif (preg_match('/^(.*?)@(.+)$/', $filter, $matches)) {
-                $filter = sprintf(
-                    '%s.*with data set "%s"$',
-                    $matches[1],
-                    $matches[2],
-                );
-            }
-
-            // Escape delimiters in regular expression. Do NOT use preg_quote,
-            // to keep magic characters.
-            $filter = sprintf(
-                '/%s/i',
-                str_replace(
-                    '/',
-                    '\\/',
-                    $filter,
-                ),
-            );
-        }
-
-        return [
-            'regularExpression' => $filter,
-            'dataSetMinimum'    => $dataSetMinimum,
-            'dataSetMaximum'    => $dataSetMaximum,
-        ];
-    }
+    abstract protected function prepareFilter(string $filter): array;
 }

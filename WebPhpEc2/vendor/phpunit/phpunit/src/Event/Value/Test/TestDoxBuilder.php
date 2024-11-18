@@ -13,8 +13,6 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Logging\TestDox\NamePrettifier;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class TestDoxBuilder
@@ -31,19 +29,17 @@ final readonly class TestDoxBuilder
     }
 
     /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
+     * @psalm-param class-string $className
+     * @psalm-param non-empty-string $methodName
      */
     public static function fromClassNameAndMethodName(string $className, string $methodName): TestDox
     {
         $prettifier = new NamePrettifier;
 
-        $prettifiedMethodName = $prettifier->prettifyTestMethodName($methodName);
-
         return new TestDox(
             $prettifier->prettifyTestClassName($className),
-            $prettifiedMethodName,
-            $prettifiedMethodName,
+            $prettifier->prettifyTestMethodName($methodName),
+            $prettifier->prettifyTestMethodName($methodName),
         );
     }
 }

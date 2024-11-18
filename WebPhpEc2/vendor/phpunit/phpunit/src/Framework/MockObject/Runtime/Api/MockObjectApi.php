@@ -17,16 +17,23 @@ use PHPUnit\Framework\MockObject\Builder\InvocationMocker as InvocationMockerBui
 use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This trait is not covered by the backward compatibility promise for PHPUnit
  */
 trait MockObjectApi
 {
+    private static array $__phpunit_deprecation_emitted_for_test = [];
+    private object $__phpunit_originalObject;
+
     /** @noinspection MagicMethodsValidityInspection */
     public function __phpunit_hasMatchers(): bool
     {
         return $this->__phpunit_getInvocationHandler()->hasMatchers();
+    }
+
+    /** @noinspection MagicMethodsValidityInspection */
+    public function __phpunit_setOriginalObject(object $originalObject): void
+    {
+        $this->__phpunit_originalObject = $originalObject;
     }
 
     /** @noinspection MagicMethodsValidityInspection */
@@ -39,8 +46,6 @@ trait MockObjectApi
         }
     }
 
-    abstract public function __phpunit_state(): TestDoubleState;
-
     abstract public function __phpunit_getInvocationHandler(): InvocationHandler;
 
     abstract public function __phpunit_unsetInvocationMocker(): void;
@@ -50,23 +55,21 @@ trait MockObjectApi
         assert($this instanceof StubInternal);
 
         if (!$this->__phpunit_wasGeneratedAsMockObject()) {
-            $message = 'Expectations configured on test doubles that are created as test stubs are no longer verified since PHPUnit 10. Test doubles that are created as test stubs will no longer have the expects() method in PHPUnit 12. Update your test code to use createMock() instead of createStub(), for example.';
+            $message = 'Configuring expectations on test doubles that were created as test stubs is deprecated. Support for this will be removed in PHPUnit 12.';
 
             try {
                 $test = TestMethodBuilder::fromCallStack();
 
-                if (!$this->__phpunit_state()->wasDeprecationAlreadyEmittedFor($test->id())) {
+                if (!isset(self::$__phpunit_deprecation_emitted_for_test[$test->id()])) {
                     EventFacade::emitter()->testTriggeredPhpunitDeprecation(
                         $test,
                         $message,
                     );
 
-                    $this->__phpunit_state()->deprecationWasEmittedFor($test->id());
+                    self::$__phpunit_deprecation_emitted_for_test[$test->id()] = true;
                 }
-                // @codeCoverageIgnoreStart
             } catch (NoTestCaseObjectOnCallStackException) {
                 EventFacade::emitter()->testRunnerTriggeredDeprecation($message);
-                // @codeCoverageIgnoreEnd
             }
         }
 

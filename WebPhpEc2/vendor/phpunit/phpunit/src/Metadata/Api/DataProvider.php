@@ -9,15 +9,12 @@
  */
 namespace PHPUnit\Metadata\Api;
 
-use const JSON_ERROR_NONE;
-use const PREG_OFFSET_CAPTURE;
 use function array_key_exists;
+use function array_merge;
 use function assert;
 use function explode;
-use function get_debug_type;
 use function is_array;
 use function is_int;
-use function is_string;
 use function json_decode;
 use function json_last_error;
 use function json_last_error_msg;
@@ -38,21 +35,18 @@ use PHPUnit\Metadata\TestWith;
 use ReflectionClass;
 use ReflectionMethod;
 use Throwable;
+use Traversable;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class DataProvider
 {
     /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
+     * @psalm-param class-string $className
+     * @psalm-param non-empty-string $methodName
      *
      * @throws InvalidDataProviderException
-     *
-     * @return ?array<array<mixed>>
      */
     public function providedData(string $className, string $methodName): ?array
     {
@@ -79,9 +73,8 @@ final readonly class DataProvider
             if (!is_array($value)) {
                 throw new InvalidDataProviderException(
                     sprintf(
-                        'Data set %s is invalid, expected array but got %s',
+                        'Data set %s is invalid',
                         is_int($key) ? '#' . $key : '"' . $key . '"',
-                        get_debug_type($value),
                     ),
                 );
             }
@@ -91,12 +84,10 @@ final readonly class DataProvider
     }
 
     /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
+     * @psalm-param class-string $className
+     * @psalm-param non-empty-string $methodName
      *
      * @throws InvalidDataProviderException
-     *
-     * @return array<array<mixed>>
      */
     private function dataProvidedByMethods(string $className, string $methodName, MetadataCollection $dataProvider): array
     {
@@ -119,6 +110,7 @@ final readonly class DataProvider
             try {
                 $class  = new ReflectionClass($_dataProvider->className());
                 $method = $class->getMethod($_dataProvider->methodName());
+                $object = null;
 
                 if (!$method->isPublic()) {
                     throw new InvalidDataProviderException(
@@ -150,9 +142,7 @@ final readonly class DataProvider
                     );
                 }
 
-                $className  = $_dataProvider->className();
-                $methodName = $_dataProvider->methodName();
-                $data       = $className::$methodName();
+                $data = $method->invoke($object);
             } catch (Throwable $e) {
                 Event\Facade::emitter()->dataProviderMethodFinished(
                     $testMethod,
@@ -166,11 +156,14 @@ final readonly class DataProvider
                 );
             }
 
-            foreach ($data as $key => $value) {
-                if (is_int($key)) {
-                    $result[] = $value;
-                } elseif (is_string($key)) {
-                    if (array_key_exists($key, $result)) {
+            if ($data instanceof Traversable) {
+                $origData = $data;
+                $data     = [];
+
+                foreach ($origData as $key => $value) {
+                    if (is_int($key)) {
+                        $data[] = $value;
+                    } elseif (array_key_exists($key, $data)) {
                         Event\Facade::emitter()->dataProviderMethodFinished(
                             $testMethod,
                             ...$methodsCalled,
@@ -182,17 +175,14 @@ final readonly class DataProvider
                                 $key,
                             ),
                         );
+                    } else {
+                        $data[$key] = $value;
                     }
-
-                    $result[$key] = $value;
-                } else {
-                    throw new InvalidDataProviderException(
-                        sprintf(
-                            'The key must be an integer or a string, %s given',
-                            get_debug_type($key),
-                        ),
-                    );
                 }
+            }
+
+            if (is_array($data)) {
+                $result = array_merge($result, $data);
             }
         }
 
@@ -204,9 +194,6 @@ final readonly class DataProvider
         return $result;
     }
 
-    /**
-     * @return array<array<mixed>>
-     */
     private function dataProvidedByMetadata(MetadataCollection $testWith): array
     {
         $result = [];
@@ -236,11 +223,9 @@ final readonly class DataProvider
     }
 
     /**
-     * @param class-string $className
+     * @psalm-param class-string $className
      *
      * @throws InvalidDataProviderException
-     *
-     * @return ?array<array<mixed>>
      */
     private function dataProvidedByTestWithAnnotation(string $className, string $methodName): ?array
     {
@@ -266,7 +251,7 @@ final readonly class DataProvider
         foreach (explode("\n", $annotationContent) as $candidateRow) {
             $candidateRow = trim($candidateRow);
 
-            if ($candidateRow === '' || $candidateRow[0] !== '[') {
+            if ($candidateRow[0] !== '[') {
                 break;
             }
 

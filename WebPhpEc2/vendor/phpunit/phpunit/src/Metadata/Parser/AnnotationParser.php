@@ -11,7 +11,6 @@ namespace PHPUnit\Metadata\Parser;
 
 use function array_merge;
 use function assert;
-use function class_exists;
 use function count;
 use function explode;
 use function method_exists;
@@ -26,7 +25,6 @@ use function trim;
 use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Metadata\Annotation\Parser\Registry as AnnotationRegistry;
 use PHPUnit\Metadata\AnnotationsAreNotSupportedForInternalClassesException;
-use PHPUnit\Metadata\InvalidVersionRequirementException;
 use PHPUnit\Metadata\Metadata;
 use PHPUnit\Metadata\MetadataCollection;
 use PHPUnit\Metadata\ReflectionException;
@@ -36,24 +34,22 @@ use PHPUnit\Util\InvalidVersionOperatorException;
 use PHPUnit\Util\VersionComparisonOperator;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class AnnotationParser implements Parser
 {
     /**
-     * @var array<string, true>
+     * @psalm-var array<string, true>
      */
     private static array $deprecationEmittedForClass = [];
 
     /**
-     * @var array<string, true>
+     * @psalm-var array<string, true>
      */
     private static array $deprecationEmittedForMethod = [];
 
     /**
-     * @param class-string $className
+     * @psalm-param class-string $className
      *
      * @throws AnnotationsAreNotSupportedForInternalClassesException
      * @throws InvalidVersionOperatorException
@@ -61,8 +57,6 @@ final class AnnotationParser implements Parser
      */
     public function forClass(string $className): MetadataCollection
     {
-        assert(class_exists($className));
-
         $result = [];
 
         foreach (AnnotationRegistry::getInstance()->forClassName($className)->symbolAnnotations() as $annotation => $values) {
@@ -165,23 +159,13 @@ final class AnnotationParser implements Parser
             }
         }
 
-        try {
-            $result = array_merge(
-                $result,
-                $this->parseRequirements(
-                    AnnotationRegistry::getInstance()->forClassName($className)->requirements(),
-                    'class',
-                ),
-            );
-        } catch (InvalidVersionRequirementException $e) {
-            EventFacade::emitter()->testRunnerTriggeredWarning(
-                sprintf(
-                    'Class %s is annotated using an invalid version requirement: %s',
-                    $className,
-                    $e->getMessage(),
-                ),
-            );
-        }
+        $result = array_merge(
+            $result,
+            $this->parseRequirements(
+                AnnotationRegistry::getInstance()->forClassName($className)->requirements(),
+                'class',
+            ),
+        );
 
         if (!empty($result) &&
             !isset(self::$deprecationEmittedForClass[$className]) &&
@@ -200,8 +184,8 @@ final class AnnotationParser implements Parser
     }
 
     /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
+     * @psalm-param class-string $className
+     * @psalm-param non-empty-string $methodName
      *
      * @throws AnnotationsAreNotSupportedForInternalClassesException
      * @throws InvalidVersionOperatorException
@@ -209,20 +193,17 @@ final class AnnotationParser implements Parser
      */
     public function forMethod(string $className, string $methodName): MetadataCollection
     {
-        assert(class_exists($className));
-        assert(method_exists($className, $methodName));
-
         $result = [];
 
         foreach (AnnotationRegistry::getInstance()->forMethod($className, $methodName)->symbolAnnotations() as $annotation => $values) {
             switch ($annotation) {
                 case 'after':
-                    $result[] = Metadata::after(0);
+                    $result[] = Metadata::after();
 
                     break;
 
                 case 'afterClass':
-                    $result[] = Metadata::afterClass(0);
+                    $result[] = Metadata::afterClass();
 
                     break;
 
@@ -238,12 +219,12 @@ final class AnnotationParser implements Parser
                     break;
 
                 case 'before':
-                    $result[] = Metadata::before(0);
+                    $result[] = Metadata::before();
 
                     break;
 
                 case 'beforeClass':
-                    $result[] = Metadata::beforeClass(0);
+                    $result[] = Metadata::beforeClass();
 
                     break;
 
@@ -362,12 +343,12 @@ final class AnnotationParser implements Parser
                     break;
 
                 case 'postCondition':
-                    $result[] = Metadata::postCondition(0);
+                    $result[] = Metadata::postCondition();
 
                     break;
 
                 case 'preCondition':
-                    $result[] = Metadata::preCondition(0);
+                    $result[] = Metadata::preCondition();
 
                     break;
 
@@ -408,24 +389,13 @@ final class AnnotationParser implements Parser
         }
 
         if (method_exists($className, $methodName)) {
-            try {
-                $result = array_merge(
-                    $result,
-                    $this->parseRequirements(
-                        AnnotationRegistry::getInstance()->forMethod($className, $methodName)->requirements(),
-                        'method',
-                    ),
-                );
-            } catch (InvalidVersionRequirementException $e) {
-                EventFacade::emitter()->testRunnerTriggeredWarning(
-                    sprintf(
-                        'Method %s::%s is annotated using an invalid version requirement: %s',
-                        $className,
-                        $methodName,
-                        $e->getMessage(),
-                    ),
-                );
-            }
+            $result = array_merge(
+                $result,
+                $this->parseRequirements(
+                    AnnotationRegistry::getInstance()->forMethod($className, $methodName)->requirements(),
+                    'method',
+                ),
+            );
         }
 
         if (!empty($result) &&
@@ -446,8 +416,8 @@ final class AnnotationParser implements Parser
     }
 
     /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
+     * @psalm-param class-string $className
+     * @psalm-param non-empty-string $methodName
      *
      * @throws AnnotationsAreNotSupportedForInternalClassesException
      * @throws InvalidVersionOperatorException
@@ -477,11 +447,9 @@ final class AnnotationParser implements Parser
     }
 
     /**
+     * @psalm-return list<Metadata>
+     *
      * @throws InvalidVersionOperatorException
-     *
-     * @return list<Metadata>
-     *
-     * @phpstan-ignore missingType.iterableValue
      */
     private function parseRequirements(array $requirements, string $level): array
     {

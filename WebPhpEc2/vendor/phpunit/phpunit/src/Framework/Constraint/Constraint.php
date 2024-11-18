@@ -9,26 +9,19 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
-use function assert;
 use function gettype;
-use function is_int;
-use function is_object;
 use function sprintf;
-use function str_replace;
-use function strpos;
 use function strtolower;
-use function substr;
 use Countable;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\SelfDescribing;
-use PHPUnit\Util\Exporter;
-use ReflectionObject;
 use SebastianBergmann\Comparator\ComparisonFailure;
+use SebastianBergmann\Exporter\Exporter;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-abstract class Constraint implements Countable, SelfDescribing
+abstract readonly class Constraint implements Countable, SelfDescribing
 {
     /**
      * Evaluates the constraint for parameter $other.
@@ -85,7 +78,7 @@ abstract class Constraint implements Countable, SelfDescribing
      *
      * @throws ExpectationFailedException
      */
-    protected function fail(mixed $other, string $description, ?ComparisonFailure $comparisonFailure = null): never
+    protected function fail(mixed $other, string $description, ComparisonFailure $comparisonFailure = null): never
     {
         $failureDescription = sprintf(
             'Failed asserting that %s.',
@@ -130,7 +123,7 @@ abstract class Constraint implements Countable, SelfDescribing
      */
     protected function failureDescription(mixed $other): string
     {
-        return Exporter::export($other) . ' ' . $this->toString();
+        return (new Exporter)->export($other) . ' ' . $this->toString();
     }
 
     /**
@@ -170,7 +163,7 @@ abstract class Constraint implements Countable, SelfDescribing
             return '';
         }
 
-        return Exporter::export($other) . ' ' . $string;
+        return (new Exporter)->export($other) . ' ' . $string;
     }
 
     /**
@@ -239,28 +232,10 @@ abstract class Constraint implements Countable, SelfDescribing
     }
 
     /**
-     * @return non-empty-string
+     * @psalm-return non-empty-string
      */
     protected function valueToTypeStringFragment(mixed $value): string
     {
-        if (is_object($value)) {
-            $reflector = new ReflectionObject($value);
-
-            if ($reflector->isAnonymous()) {
-                $name = str_replace('class@anonymous', '', $reflector->getName());
-
-                $length = strpos($name, '$');
-
-                assert(is_int($length));
-
-                $name = substr($name, 0, $length);
-
-                return 'an instance of anonymous class created at ' . $name . ' ';
-            }
-
-            return 'an instance of class ' . $reflector->getName() . ' ';
-        }
-
         $type = strtolower(gettype($value));
 
         if ($type === 'double') {
@@ -272,7 +247,7 @@ abstract class Constraint implements Countable, SelfDescribing
         }
 
         return match ($type) {
-            'array', 'integer' => 'an ' . $type . ' ',
+            'array', 'integer', 'object' => 'an ' . $type . ' ',
             'boolean', 'closed resource', 'float', 'resource', 'string' => 'a ' . $type . ' ',
             'null'  => 'null ',
             default => 'a value of ' . $type . ' ',

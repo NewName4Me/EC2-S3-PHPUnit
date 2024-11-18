@@ -12,12 +12,9 @@ namespace PHPUnit\TestRunner\TestResult;
 use PHPUnit\Event\EventFacadeIsSealedException;
 use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Event\UnknownSubscriberTypeException;
-use PHPUnit\TestRunner\IssueFilter;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class Facade
@@ -97,7 +94,7 @@ final class Facade
 
             self::$collector = new Collector(
                 EventFacade::instance(),
-                new IssueFilter($configuration->source()),
+                $configuration->source(),
             );
         }
 

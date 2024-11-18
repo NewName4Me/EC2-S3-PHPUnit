@@ -9,15 +9,37 @@
  */
 namespace PHPUnit\Runner\Filter;
 
+use function preg_match;
+use function sprintf;
+use function str_replace;
+
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class ExcludeNameFilterIterator extends NameFilterIterator
 {
-    protected function doAccept(bool $result): bool
+    /**
+     * @psalm-param non-empty-string $filter
+     *
+     * @psalm-return array{regularExpression: non-empty-string, dataSetMinimum: ?int, dataSetMaximum: ?int}
+     */
+    protected function prepareFilter(string $filter): array
     {
-        return !$result;
+        if (@preg_match($filter, '') === false) {
+            $filter = sprintf(
+                '/^(?:(?!%s).)*/i',
+                str_replace(
+                    '/',
+                    '\\/',
+                    $filter,
+                ),
+            );
+        }
+
+        return [
+            'regularExpression' => $filter,
+            'dataSetMinimum'    => null,
+            'dataSetMaximum'    => null,
+        ];
     }
 }

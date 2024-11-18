@@ -20,8 +20,6 @@ use PHPUnit\Metadata\DependsOnMethod;
 use Stringable;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class ExecutionOrderDependency implements Stringable
@@ -62,9 +60,9 @@ final class ExecutionOrderDependency implements Stringable
     }
 
     /**
-     * @param list<ExecutionOrderDependency> $dependencies
+     * @psalm-param list<ExecutionOrderDependency> $dependencies
      *
-     * @return list<ExecutionOrderDependency>
+     * @psalm-return list<ExecutionOrderDependency>
      */
     public static function filterInvalid(array $dependencies): array
     {
@@ -77,10 +75,10 @@ final class ExecutionOrderDependency implements Stringable
     }
 
     /**
-     * @param list<ExecutionOrderDependency> $existing
-     * @param list<ExecutionOrderDependency> $additional
+     * @psalm-param list<ExecutionOrderDependency> $existing
+     * @psalm-param list<ExecutionOrderDependency> $additional
      *
-     * @return list<ExecutionOrderDependency>
+     * @psalm-return list<ExecutionOrderDependency>
      */
     public static function mergeUnique(array $existing, array $additional): array
     {
@@ -90,13 +88,11 @@ final class ExecutionOrderDependency implements Stringable
         );
 
         foreach ($additional as $dependency) {
-            $additionalTarget = $dependency->getTarget();
-
-            if (in_array($additionalTarget, $existingTargets, true)) {
+            if (in_array($dependency->getTarget(), $existingTargets, true)) {
                 continue;
             }
 
-            $existingTargets[] = $additionalTarget;
+            $existingTargets[] = $dependency->getTarget();
             $existing[]        = $dependency;
         }
 
@@ -104,10 +100,10 @@ final class ExecutionOrderDependency implements Stringable
     }
 
     /**
-     * @param list<ExecutionOrderDependency> $left
-     * @param list<ExecutionOrderDependency> $right
+     * @psalm-param list<ExecutionOrderDependency> $left
+     * @psalm-param list<ExecutionOrderDependency> $right
      *
-     * @return list<ExecutionOrderDependency>
+     * @psalm-return list<ExecutionOrderDependency>
      */
     public static function diff(array $left, array $right): array
     {

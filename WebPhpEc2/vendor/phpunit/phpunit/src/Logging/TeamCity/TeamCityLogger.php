@@ -40,8 +40,6 @@ use PHPUnit\Framework\Exception as FrameworkException;
 use PHPUnit\TextUI\Output\Printer;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class TeamCityLogger
@@ -292,14 +290,11 @@ final class TeamCityLogger
         }
     }
 
-    /**
-     * @param array<non-empty-string, int|string> $parameters
-     */
     private function writeMessage(string $eventName, array $parameters = []): void
     {
         $this->printer->print(
             sprintf(
-                '##teamcity[%s',
+                "\n##teamcity[%s",
                 $eventName,
             ),
         );
