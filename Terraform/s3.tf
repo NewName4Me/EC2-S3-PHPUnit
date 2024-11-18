@@ -8,13 +8,13 @@ resource "aws_s3_bucket" "s3" {
 resource "aws_s3_bucket_public_access_block" "s3_public_block" {
   bucket = aws_s3_bucket.s3.id
 
-  block_public_acls       = false
-  block_public_policy     = false 
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = false  # Permite ACLs públicas
+  block_public_policy     = false  # Permite políticas públicas
+  ignore_public_acls      = false  # No ignora ACLs públicas
+  restrict_public_buckets = false  # No restringe el acceso público al bucket
 }
 
-# Política para permitir acceso público de lectura
+# Política para permitir acceso público de lectura y modificación de la política del bucket
 resource "aws_s3_bucket_policy" "s3_policy" {
   bucket = aws_s3_bucket.s3.id
 
@@ -23,9 +23,15 @@ resource "aws_s3_bucket_policy" "s3_policy" {
     Statement = [
       {
         Effect    = "Allow"
-        Principal = "*"
         Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.s3.arn}/*"
+        Principal = "*"
+        Resource  = "${aws_s3_bucket.s3.arn}/*"  # Permite acceso público de lectura
+      },
+      {
+        Effect    = "Allow"
+        Action    = "s3:PutBucketPolicy"
+        Principal = "*"
+        Resource  = "arn:aws:s3:::107-bucket"  # Permite la acción de modificar la política del bucket
       }
     ]
   })
@@ -42,7 +48,7 @@ resource "aws_s3_bucket_website_configuration" "s3_website" {
 
 # Subida de archivos al bucket
 data "local_file" "web_files" {
-  for_each = fileset("../WebAreaS3", "**")      # Itera sobre todos los archivos en la carpeta `web`
+  for_each = fileset("../WebAreaS3", "**")            # Itera sobre todos los archivos en la carpeta `web`
   filename = "${abspath("../WebAreaS3")}/${each.key}" # Obtiene la ruta completa del archivo
 }
 
