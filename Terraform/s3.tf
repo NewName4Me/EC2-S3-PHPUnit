@@ -8,13 +8,13 @@ resource "aws_s3_bucket" "s3" {
 resource "aws_s3_bucket_public_access_block" "s3_public_block" {
   bucket = aws_s3_bucket.s3.id
 
-  block_public_acls       = false # Permite ACLs públicas
-  block_public_policy     = true  # Permite políticas públicas
-  ignore_public_acls      = false # No ignora ACLs públicas
-  restrict_public_buckets = false # No restringe el acceso público al bucket
+  block_public_acls       = false  # Permite ACLs públicas
+  block_public_policy     = false  # Permite políticas públicas
+  ignore_public_acls      = false  # No ignora ACLs públicas
+  restrict_public_buckets = false  # No restringe el acceso público al bucket
 }
 
-# Política para permitir acceso público de lectura y modificación de la política del bucket
+# Política para permitir acceso público de lectura
 resource "aws_s3_bucket_policy" "s3_policy" {
   bucket = aws_s3_bucket.s3.id
 
@@ -25,13 +25,7 @@ resource "aws_s3_bucket_policy" "s3_policy" {
         Effect    = "Allow"
         Action    = "s3:GetObject"
         Principal = "*"
-        Resource  = "${aws_s3_bucket.s3.arn}/*" # Permite acceso público de lectura
-      },
-      {
-        Effect    = "Allow"
-        Action    = "s3:PutBucketPolicy"
-        Principal = "*"
-        Resource  = "arn:aws:s3:::107-bucket" # Permite la acción de modificar la política del bucket
+        Resource  = "${aws_s3_bucket.s3.arn}/*"  # Permite acceso público de lectura
       }
     ]
   })
