@@ -8,7 +8,7 @@ Orden de prevalencia de la búsqueda de página web. En caso de no encontrar dic
 
 Redireccionamientos.
 
-Páginas de errores.
+✅ Páginas de errores.
 
 Negociación de contenidos, es decir, presentación de la página en distintos idiomas.
 
@@ -18,10 +18,10 @@ Autentificación de acceso a una página.
 
 Espacio de usuarios.
 
-Https (certificados, buscaremos una página que nos permita uno gratuito). Por ahora NO
+❌ Https (certificados, buscaremos una página que nos permita uno gratuito). Por ahora NO
 
 Conexión con php y python????.
 
-Análisis del tráfico del Servidor. Por ahora NO
+❌ Análisis del tráfico del Servidor. Por ahora NO
 
 Un poco de imaginación por vuestra parte. Proponer algo del servidor web.
