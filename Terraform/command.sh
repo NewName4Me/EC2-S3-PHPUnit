@@ -43,7 +43,7 @@ sudo chmod -R 755 /var/www/erik
 # Cambia la configuración del puerto de Apache
 sudo sed -i 's/Listen 80/Listen 1616/' /etc/apache2/ports.conf
 
-# Configura Apache para usar el nuevo directorio en el puerto 1616 y página de error personalizada
+# Configura Apache para usar el nuevo directorio en el puerto 1616, con redirección y página de error personalizada
 sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
 <VirtualHost *:1616>
     ServerAdmin webmaster@localhost
@@ -54,6 +54,9 @@ sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
         Require all granted
     </Directory>
     
+    # Redirige /direccionantigua a la raíz del sitio
+    Redirect 301 /direccionantigua /
+
     # Autenticación en la carpeta admin
     <Directory /var/www/erik/view/admin>
         Options Indexes FollowSymLinks

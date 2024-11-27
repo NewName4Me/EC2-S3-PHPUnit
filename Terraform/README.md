@@ -16,7 +16,7 @@ Sitios virtuales.
 
 ✅ Autentificación de acceso a una página.
 
-Espacio de usuarios.
+✅ Espacio de usuarios.
 
 ❌ Https (certificados, buscaremos una página que nos permita uno gratuito). Por ahora NO
 
