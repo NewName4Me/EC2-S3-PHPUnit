@@ -14,7 +14,7 @@ Negociación de contenidos, es decir, presentación de la página en distintos i
 
 Sitios virtuales.
 
-Autentificación de acceso a una página.
+✅ Autentificación de acceso a una página.
 
 Espacio de usuarios.
 

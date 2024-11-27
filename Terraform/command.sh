@@ -63,6 +63,23 @@ sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
         Require valid-user
     </Directory>
 
+    # Configuración de espacios para usuarios
+    <Directory /var/www/erik/usuariosDir/usuario1>
+        Options Indexes FollowSymLinks
+        AuthType Basic
+        AuthName "Espacio de usuario1"
+        AuthUserFile /var/www/erik/.htpasswd_usuario1
+        Require valid-user
+    </Directory>
+
+    <Directory /var/www/erik/usuariosDir/usuario2>
+        Options Indexes FollowSymLinks
+        AuthType Basic
+        AuthName "Espacio de usuario2"
+        AuthUserFile /var/www/erik/.htpasswd_usuario2
+        Require valid-user
+    </Directory>
+
     ErrorDocument 404 /errors/error.html
     ErrorDocument 500 /errors/error.html
     ErrorLog \${APACHE_LOG_DIR}/erik_error.log
@@ -70,9 +87,20 @@ sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
 </VirtualHost>
 EOF'
 
-# Crea el archivo .htpasswd para la autenticación
-# Asegúrate de reemplazar 'usuario' y 'contraseña' por los valores deseados
-echo "usuario:$(openssl passwd -crypt contraseña)" | sudo tee /var/www/erik/.htpasswd > /dev/null
+# Crea directorios para los usuarios
+sudo mkdir -p /var/www/erik/usuariosDir/usuario1
+sudo mkdir -p /var/www/erik/usuariosDir/usuario2
+
+# Establece permisos para los directorios de los usuarios
+sudo chown -R www-data:www-data /var/www/erik/usuariosDir/usuario1
+sudo chmod -R 755 /var/www/erik/usuariosDir/usuario1
+
+sudo chown -R www-data:www-data /var/www/erik/usuariosDir/usuario2
+sudo chmod -R 755 /var/www/erik/usuariosDir/usuario2
+
+# Crea archivos .htpasswd para cada usuario
+echo "usuario1:$(openssl passwd -crypt password1)" | sudo tee /var/www/erik/.htpasswd_usuario1 > /dev/null
+echo "usuario2:$(openssl passwd -crypt password2)" | sudo tee /var/www/erik/.htpasswd_usuario2 > /dev/null
 
 # Deshabilita el sitio predeterminado y habilita el nuevo
 sudo a2dissite 000-default.conf
