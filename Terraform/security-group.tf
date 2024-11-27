@@ -22,6 +22,14 @@ resource "aws_security_group" "webserver_security_group" {
     cidr_blocks = [var.ingress_ssh_cidr]
   }
 
+  ingress {
+    description = "abrir puerto 1616 para testep"
+    from_port   = 1616
+    to_port     = 1616
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
 
   egress {
     from_port   = 0
