@@ -53,12 +53,26 @@ sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
         AllowOverride All
         Require all granted
     </Directory>
+    
+    # Autenticación en la carpeta admin
+    <Directory /var/www/erik/view/admin>
+        Options Indexes FollowSymLinks
+        AuthType Basic
+        AuthName "Área Administrativa"
+        AuthUserFile /var/www/erik/.htpasswd
+        Require valid-user
+    </Directory>
+
     ErrorDocument 404 /errors/error.html
     ErrorDocument 500 /errors/error.html
     ErrorLog \${APACHE_LOG_DIR}/erik_error.log
     CustomLog \${APACHE_LOG_DIR}/erik_access.log combined
 </VirtualHost>
 EOF'
+
+# Crea el archivo .htpasswd para la autenticación
+# Asegúrate de reemplazar 'usuario' y 'contraseña' por los valores deseados
+echo "usuario:$(openssl passwd -crypt contraseña)" | sudo tee /var/www/erik/.htpasswd > /dev/null
 
 # Deshabilita el sitio predeterminado y habilita el nuevo
 sudo a2dissite 000-default.conf

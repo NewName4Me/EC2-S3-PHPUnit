@@ -1,10 +1,10 @@
-Identificación de archivos de configuración y módulos.
+✅ Identificación de archivos de configuración y módulos.
 
 ✅ Directorio en el que ubicar la página (posibilidad de cambio)
 
 ✅ Puerto que atiende las peticiones (posibilidad de cambio) => 1616
 
-Orden de prevalencia de la búsqueda de página web. En caso de no encontrar dicha página estudiar la opción Indexes (ventajas e inconvenientes)
+✅ Orden de prevalencia de la búsqueda de página web. En caso de no encontrar dicha página estudiar la opción Indexes (ventajas e inconvenientes) => si renombro mi indice a lo que sea se muestra la paagina de Indexes
 
 Redireccionamientos.
 
