@@ -90,24 +90,35 @@ sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
 </VirtualHost>
 EOF'
 
-# Crea directorios para los usuarios
-sudo mkdir -p /var/www/erik/usuariosDir/usuario1
-sudo mkdir -p /var/www/erik/usuariosDir/usuario2
+# Configura un segundo sitio en el puerto 3030
+sudo mkdir -p /var/www/susanaparati
+sudo cp -R /var/www/erik/* /var/www/susanaparati/
+sudo chown -R www-data:www-data /var/www/susanaparati
+sudo chmod -R 755 /var/www/susanaparati
 
-# Establece permisos para los directorios de los usuarios
-sudo chown -R www-data:www-data /var/www/erik/usuariosDir/usuario1
-sudo chmod -R 755 /var/www/erik/usuariosDir/usuario1
+sudo bash -c 'cat > /etc/apache2/sites-available/susanaparati.conf <<EOF
+<VirtualHost *:3030>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/susanaparati
+    <Directory /var/www/susanaparati>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
 
-sudo chown -R www-data:www-data /var/www/erik/usuariosDir/usuario2
-sudo chmod -R 755 /var/www/erik/usuariosDir/usuario2
+    ErrorDocument 404 /errors/error.html
+    ErrorDocument 500 /errors/error.html
+    ErrorLog \${APACHE_LOG_DIR}/susanaparati_error.log
+    CustomLog \${APACHE_LOG_DIR}/susanaparati_access.log combined
+</VirtualHost>
+EOF'
 
-# Crea archivos .htpasswd para cada usuario
-echo "usuario1:$(openssl passwd -crypt password1)" | sudo tee /var/www/erik/.htpasswd_usuario1 > /dev/null
-echo "usuario2:$(openssl passwd -crypt password2)" | sudo tee /var/www/erik/.htpasswd_usuario2 > /dev/null
-
-# Deshabilita el sitio predeterminado y habilita el nuevo
-sudo a2dissite 000-default.conf
+# Habilita ambos sitios
 sudo a2ensite erik.conf
+sudo a2ensite susanaparati.conf
+
+# Habilita ambos puertos en Apache
+sudo sed -i '/Listen 1616/a Listen 3030' /etc/apache2/ports.conf
 
 # Recarga Apache para aplicar los cambios
 sudo systemctl reload apache2

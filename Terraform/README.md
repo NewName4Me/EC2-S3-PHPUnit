@@ -6,13 +6,13 @@
 
 ✅ Orden de prevalencia de la búsqueda de página web. En caso de no encontrar dicha página estudiar la opción Indexes (ventajas e inconvenientes) => si renombro mi indice a lo que sea se muestra la paagina de Indexes
 
-Redireccionamientos.
-
+✅ Redireccionamientos.
+    
 ✅ Páginas de errores.
 
 Negociación de contenidos, es decir, presentación de la página en distintos idiomas.
 
-Sitios virtuales.
+✅ Sitios virtuales.
 
 ✅ Autentificación de acceso a una página.
 
@@ -20,7 +20,7 @@ Sitios virtuales.
 
 ❌ Https (certificados, buscaremos una página que nos permita uno gratuito). Por ahora NO
 
-Conexión con php y python????.
+⚠️ Conexión con php y python????.
 
 ❌ Análisis del tráfico del Servidor. Por ahora NO
 

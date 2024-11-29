@@ -30,6 +30,13 @@ resource "aws_security_group" "webserver_security_group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "abrir puerto para el usuario virtual de susanaparati"
+    from_port   = 3030
+    to_port     = 3030
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     from_port   = 0
