@@ -4,8 +4,9 @@ sudo apt update -y
 sudo apt upgrade -y
 sudo apt install -y apache2 apache2-utils openssl git php php-common php-pear
 
-# Habilita el módulo de PHP adecuado para Apache
+# Habilita los módulos necesarios para Apache
 sudo a2enmod php8.2  # Cambia '8.2' según la versión que instales
+sudo a2enmod negotiation  # Habilita mod_negotiation para MultiViews
 sudo systemctl restart apache2
 
 # Crea el nuevo directorio web si no existe y elimina su contenido previo
@@ -49,7 +50,7 @@ sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
     ServerAdmin webmaster@localhost
     DocumentRoot /var/www/erik
     <Directory /var/www/erik>
-        Options Indexes FollowSymLinks
+        Options Indexes FollowSymLinks MultiViews
         AllowOverride None
         Require all granted
     </Directory>
@@ -109,7 +110,7 @@ sudo bash -c 'cat > /etc/apache2/sites-available/susanaparati.conf <<EOF
     ServerAdmin webmaster@localhost
     DocumentRoot /var/www/susanaparati
     <Directory /var/www/susanaparati>
-        Options Indexes FollowSymLinks
+        Options Indexes FollowSymLinks MultiViews
         AllowOverride None
         Require all granted
     </Directory>
