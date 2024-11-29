@@ -43,23 +43,24 @@ sudo chmod -R 755 /var/www/erik
 # Cambia la configuración del puerto de Apache
 sudo sed -i 's/Listen 80/Listen 1616/' /etc/apache2/ports.conf
 
-# Configura Apache para usar el nuevo directorio en el puerto 1616, con redirección y página de error personalizada
+# Configura Apache para usar el nuevo directorio en el puerto 1616, con redirección y autenticación
 sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
 <VirtualHost *:1616>
     ServerAdmin webmaster@localhost
     DocumentRoot /var/www/erik
     <Directory /var/www/erik>
         Options Indexes FollowSymLinks
-        AllowOverride All
+        AllowOverride None
         Require all granted
     </Directory>
     
     # Redirige /direccionantigua a la raíz del sitio
-    Redirect 301 /direccionantigua /
+    RedirectMatch ^/direccionantigua/?$ /
 
     # Autenticación en la carpeta admin
     <Directory /var/www/erik/view/admin>
         Options Indexes FollowSymLinks
+        AllowOverride None
         AuthType Basic
         AuthName "Área Administrativa"
         AuthUserFile /var/www/erik/.htpasswd
@@ -69,6 +70,7 @@ sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
     # Configuración de espacios para usuarios
     <Directory /var/www/erik/usuariosDir/usuario1>
         Options Indexes FollowSymLinks
+        AllowOverride None
         AuthType Basic
         AuthName "Espacio de usuario1"
         AuthUserFile /var/www/erik/.htpasswd_usuario1
@@ -77,6 +79,7 @@ sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
 
     <Directory /var/www/erik/usuariosDir/usuario2>
         Options Indexes FollowSymLinks
+        AllowOverride None
         AuthType Basic
         AuthName "Espacio de usuario2"
         AuthUserFile /var/www/erik/.htpasswd_usuario2
@@ -90,6 +93,11 @@ sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
 </VirtualHost>
 EOF'
 
+# Configura autenticación para usuarios y admin
+sudo htpasswd -cb /var/www/erik/.htpasswd admin admin
+sudo htpasswd -cb /var/www/erik/.htpasswd_usuario1 usuario1 usuario1
+sudo htpasswd -cb /var/www/erik/.htpasswd_usuario2 usuario2 usuario2
+
 # Configura un segundo sitio en el puerto 3030
 sudo mkdir -p /var/www/susanaparati
 sudo cp -R /var/www/erik/* /var/www/susanaparati/
@@ -102,7 +110,7 @@ sudo bash -c 'cat > /etc/apache2/sites-available/susanaparati.conf <<EOF
     DocumentRoot /var/www/susanaparati
     <Directory /var/www/susanaparati>
         Options Indexes FollowSymLinks
-        AllowOverride All
+        AllowOverride None
         Require all granted
     </Directory>
 
