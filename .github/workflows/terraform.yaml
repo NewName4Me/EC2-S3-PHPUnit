@@ -100,7 +100,9 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: inicializar terraform
+        working-directory: ./Terraform
         run: terraform init
 
       - name: destroy terraform
+        working-directory: ./Terraform
         run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
