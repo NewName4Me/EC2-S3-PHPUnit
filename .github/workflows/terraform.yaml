@@ -28,6 +28,15 @@ jobs:
           chmod +x ./vendor/bin/phpunit
 
       - name: Ejecutar PHPUnit
+        id: phpunit-tests
         run: |
           cd WebPhpEc2
-          ./vendor/bin/phpunit tests
+          ./vendor/bin/phpunit tests || exit 1
+
+      - name: Verificar resultado de los tests
+        if: success()
+        run: echo "✅ Los tests pasaron correctamente."
+
+      - name: Verificar fallos en los tests
+        if: failure()
+        run: echo "❌ Algunos tests fallaron."
