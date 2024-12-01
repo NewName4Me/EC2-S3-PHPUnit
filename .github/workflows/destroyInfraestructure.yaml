@@ -33,6 +33,6 @@ jobs:
         working-directory: ./Terraform
         run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
 
-      - name: Eliminar tfState de S3
-        run: |
-          aws s3 rm s3://githubactionsterraformstate/terraform.tfstate
+      #- name: Eliminar tfState de S3
+      #  run: |
+      #    aws s3 rm s3://githubactionsterraformstate/terraform.tfstate
