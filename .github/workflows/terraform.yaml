@@ -81,36 +81,37 @@ jobs:
           name: terraform-tfstate
           path: Terraform/terraform.tfstate
 
-  destroy: #! Job para destruir la infraestructura
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.1
+  # destroy: #! Job para destruir la infraestructura
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4.2.1
 
-      - name: Descargar tfstate como artefacto
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: terraform-tfstate
-          path: .
+  #     - name: Descargar tfstate como artefacto
+  #       uses: actions/download-artifact@v4.1.8
+  #       with:
+  #         name: terraform-tfstate
+  #         path: .
 
-      - name: Mover tfstate al directorio correcto
-        run: mv ./terraform.tfstate ./Terraform/terraform.tfstate
+  #     - name: Mover tfstate al directorio correcto
+  #       run: mv ./terraform.tfstate ./Terraform/terraform.tfstate
 
-      - name: pasar mis tokens a aws
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: "us-east-1"
+  #     - name: pasar mis tokens a aws
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+  #         aws-region: "us-east-1"
 
-      - name: Hacer el set up de tf
-        uses: hashicorp/setup-terraform@v3
+  #     - name: Hacer el set up de tf
+  #       uses: hashicorp/setup-terraform@v3
 
-      - name: inicializar terraform
-        working-directory: ./Terraform
-        run: terraform init
+  #     - name: inicializar terraform
+  #       working-directory: ./Terraform
+  #       run: terraform init
 
-      - name: destroy terraform
-        working-directory: ./Terraform
-        run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
+  #     - name: destroy terraform
+  #       working-directory: ./Terraform
+  #       run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
+
