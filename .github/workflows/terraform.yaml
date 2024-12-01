@@ -23,7 +23,11 @@ jobs:
           composer update
 
       - name: Darle permisos a PHPUnit
-        run: chmod +x ./vendor/bin/phpunit
+        run: |
+          cd WebPhpEc2
+          chmod +x ./vendor/bin/phpunit
 
       - name: Ejecutar PHPUnit
-        run: ./vendor/bin/phpunit tests
+        run: |
+          cd WebPhpEc2
+          ./vendor/bin/phpunit tests
