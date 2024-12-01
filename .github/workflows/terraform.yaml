@@ -69,6 +69,11 @@ jobs:
         working-directory: ./Terraform
         run: terraform apply -auto-approve
 
+      - name: Subit tfState a mi bucket S3
+        if: success()
+        run: |
+          aws s3 cp Terraform/terraform.tfstate s3://githubactionsterraformstate/ruta/terraform.tfstate
+
       - name: Subir tfstate como artefacto
         if: success() # Solo se ejecuta si los tests pasan
         uses: actions/upload-artifact@v4.4.3
@@ -87,6 +92,9 @@ jobs:
         with:
           name: terraform-tfstate
           path: .
+
+      - name: Mover tfstate al directorio correcto
+        run: mv ./terraform.tfstate ./Terraform/terraform.tfstate
 
       - name: pasar mis tokens a aws
         uses: aws-actions/configure-aws-credentials@v4
