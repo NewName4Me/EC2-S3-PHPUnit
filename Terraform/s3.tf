@@ -22,17 +22,15 @@ resource "aws_s3_bucket_policy" "s3_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
-        Action = [
-          "s3:PutBucketPolicy",
-          "s3:GetBucketPolicy"
-        ],
+        Effect    = "Allow"
+        Action    = "s3:GetObject"
         Principal = "*"
-        Resource  = "arn:aws:s3:::4-bucket/*"
+        Resource  = "arn:aws:s3:::4-bucket/*"  # Aplica a los objetos dentro del bucket
       }
     ]
   })
 }
+
 
 # Configuración del sitio web estático
 resource "aws_s3_bucket_website_configuration" "s3_website" {
