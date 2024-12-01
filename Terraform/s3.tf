@@ -25,12 +25,11 @@ resource "aws_s3_bucket_policy" "s3_policy" {
         Effect    = "Allow"
         Action    = "s3:GetObject"
         Principal = "*"
-        Resource  = "arn:aws:s3:::4-bucket/*"  # Aplica a los objetos dentro del bucket
+        Resource  = "arn:aws:s3:::4-bucket/*"
       }
     ]
   })
 }
-
 
 # Configuración del sitio web estático
 resource "aws_s3_bucket_website_configuration" "s3_website" {
