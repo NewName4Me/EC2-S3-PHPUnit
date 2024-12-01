@@ -1,0 +1,38 @@
+name: deploy-destroy
+
+on:
+  workflow_dispatch: #! Permite ejecutar manualmente el flujo de trabajo
+
+jobs:
+  destroy: #! Job para destruir la infraestructura
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.1
+
+      - name: Descargar tfstate desde S3
+        run: |
+          aws s3 cp s3://githubactionsterraformstate/terraform.tfstate Terraform/terraform.tfstate
+
+      - name: Pasar mis tokens a AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: "us-east-1"
+
+      - name: Hacer el set up de Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Inicializar Terraform
+        working-directory: ./Terraform
+        run: terraform init
+
+      - name: Destroy Terraform
+        working-directory: ./Terraform
+        run: terraform destroy -auto-approve #! Destruir la infraestructura automáticamente
+
+      - name: Eliminar tfState de S3
+        run: |
+          aws s3 rm s3://githubactionsterraformstate/terraform.tfstate
