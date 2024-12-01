@@ -72,7 +72,7 @@ jobs:
       - name: Subit tfState a mi bucket S3
         if: success()
         run: |
-          aws s3 cp Terraform/terraform.tfstate s3://githubactionsterraformstate/ruta/terraform.tfstate
+          aws s3 cp Terraform/terraform.tfstate s3://githubactionsterraformstate/terraform.tfstate
 
       - name: Subir tfstate como artefacto
         if: success() # Solo se ejecuta si los tests pasan
