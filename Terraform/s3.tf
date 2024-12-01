@@ -22,8 +22,11 @@ resource "aws_s3_bucket_policy" "s3_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect    = "Allow"
-        Action    = "s3:GetObject"
+        Effect = "Allow"
+        Action = [
+          "s3:PutBucketPolicy",
+          "s3:GetBucketPolicy"
+        ],
         Principal = "*"
         Resource  = "arn:aws:s3:::4-bucket/*"
       }
