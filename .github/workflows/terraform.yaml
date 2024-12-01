@@ -41,7 +41,37 @@ jobs:
         if: failure()
         run: echo "❌ Algunos tests fallaron."
 
-      - name: donde estoy?
-        run: | 
-          ls -la
-          pwd
+      - name: Pasar tokens a AWS
+        if: success() # Solo se ejecuta si los tests pasan
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: "us-east-1"
+
+      - name: Hacer el setup de Terraform
+        if: success() # Solo se ejecuta si los tests pasan
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Inicializar Terraform
+        if: success() # Solo se ejecuta si los tests pasan
+        working-directory: ./Terraform
+        run: terraform init
+
+      - name: Plan de Terraform
+        if: success() # Solo se ejecuta si los tests pasan
+        working-directory: ./Terraform
+        run: terraform plan -no-color
+
+      - name: Apply Terraform
+        if: success() # Solo se ejecuta si los tests pasan
+        working-directory: ./Terraform
+        run: terraform apply -auto-approve
+
+      - name: Subir tfstate como artefacto
+        if: success() # Solo se ejecuta si los tests pasan
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: terraform-tfstate
+          path: Terraform/terraform.tfstate
