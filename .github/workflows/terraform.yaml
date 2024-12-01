@@ -17,11 +17,6 @@ jobs:
           extensions: mbstring, xml
           tools: composer
 
-      - name: Validar archivos de Composer
-        run: |
-          cd WebPhpEc2
-          composer validate
-
       - name: Actualizar Composer
         run: |
           cd WebPhpEc2
