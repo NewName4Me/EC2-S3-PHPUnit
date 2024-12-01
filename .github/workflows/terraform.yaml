@@ -18,7 +18,9 @@ jobs:
           tools: composer
 
       - name: Instalar Composer
-        run: composer install
+        run: |
+          cd WebPhpEc2
+          composer install
 
       - name: Darle permisos a PHPUnit
         run: chmod +x ./vendor/bin/phpunit
