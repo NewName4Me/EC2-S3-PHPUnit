@@ -24,7 +24,7 @@ jobs:
         run: |
           ls
           cd WebAreaS3
-          jsdoc . -d out #! Genera documentación en la carpeta out dentro de WebAreaS3
+          jsdoc js -d out #! Genera documentación en la carpeta out dentro de WebAreaS3
 
       - name: Configurar git
         run: |
