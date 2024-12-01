@@ -1,0 +1,39 @@
+name: generateJsDoc
+
+on:
+  workflow_dispatch: #! Permite ejecutar manualmente el flujo de trabajo
+
+jobs:
+  generate-doc: #! Generar documentación de JSDoc
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.1
+
+      - name: Instalar Node.js y JSDoc
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: "20.15.1"
+
+      - run: npm install -g jsdoc #! Instalación global para evitar configurar package.json
+
+      - name: Limpiar la carpeta out (eliminar archivos generados previamente)
+        run: rm -rf WebAreaS3/out/* #! Esto elimina todo el contenido de la carpeta out dentro de WebAreaS3
+
+      - name: Generar documentación de JSDoc
+        run: |
+          cd WebAreaS3
+          jsdoc . -d out #! Genera documentación en la carpeta out dentro de WebAreaS3
+
+      - name: Configurar git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit y push de la documentación generada
+        run: |
+          git add WebAreaS3/out
+          git commit -m "Actualizar documentación JSDoc"
+          git push --force origin main #! Usa force por posibles problemas de escritura del bot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
