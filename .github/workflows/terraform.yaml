@@ -10,17 +10,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.1
 
-      - name: Instalar php
+      - name: Instalar PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
           extensions: mbstring, xml
           tools: composer
 
-      - name: Instalar Composer
+      - name: Validar archivos de Composer
         run: |
           cd WebPhpEc2
-          composer install
+          composer validate
+
+      - name: Actualizar Composer
+        run: |
+          cd WebPhpEc2
+          composer update
 
       - name: Darle permisos a PHPUnit
         run: chmod +x ./vendor/bin/phpunit
