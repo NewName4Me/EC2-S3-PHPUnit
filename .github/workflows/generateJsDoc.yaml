@@ -22,16 +22,19 @@ jobs:
 
       - name: Generar documentación de JSDoc
         run: |
+          ls
           cd WebAreaS3
           jsdoc . -d out #! Genera documentación en la carpeta out dentro de WebAreaS3
 
       - name: Configurar git
         run: |
+          ls
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Commit y push de la documentación generada
         run: |
+          ls
           git add WebAreaS3/out
           git commit -m "Actualizar documentación JSDoc"
           git push --force origin main #! Usa force por posibles problemas de escritura del bot
