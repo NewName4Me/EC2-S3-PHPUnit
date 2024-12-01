@@ -40,3 +40,8 @@ jobs:
       - name: Verificar fallos en los tests
         if: failure()
         run: echo "❌ Algunos tests fallaron."
+
+      - name: donde estoy?
+        run: | 
+          ls -la
+          pwd
