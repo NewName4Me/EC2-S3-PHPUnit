@@ -1,4 +1,4 @@
-name: deploy-destroy
+name: Destroy infraestructure
 
 on:
   workflow_dispatch: #! Permite ejecutar manualmente el flujo de trabajo
