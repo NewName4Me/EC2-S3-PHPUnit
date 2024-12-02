@@ -7,6 +7,7 @@ sudo apt install -y apache2 apache2-utils openssl git php php-common php-pear
 # Habilita los módulos necesarios para Apache
 sudo a2enmod php8.2  # Cambia '8.2' según la versión que instales
 sudo a2enmod negotiation  # Habilita mod_negotiation para MultiViews
+sudo a2enmod ratelimit  # Habilita mod_ratelimit para Rate Limiting
 sudo systemctl restart apache2
 
 # Crea el nuevo directorio web si no existe y elimina su contenido previo
@@ -44,7 +45,7 @@ sudo chmod -R 755 /var/www/erik
 # Cambia la configuración del puerto de Apache
 sudo sed -i 's/Listen 80/Listen 1616/' /etc/apache2/ports.conf
 
-# Configura Apache para usar el nuevo directorio en el puerto 1616, con redirección y autenticación
+# Configura Apache para usar el nuevo directorio en el puerto 1616, con redirección, autenticación y Rate Limiting
 sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
 <VirtualHost *:1616>
     ServerAdmin webmaster@localhost
@@ -87,6 +88,12 @@ sudo bash -c 'cat > /etc/apache2/sites-available/erik.conf <<EOF
         Require valid-user
     </Directory>
 
+    # Rate Limiting configuración
+    <Location "/">
+        SetOutputFilter RATE_LIMIT
+        SetEnv rate-limit 500
+    </Location>
+
     ErrorDocument 404 /errors/error.html
     ErrorDocument 500 /errors/error.html
     ErrorLog \${APACHE_LOG_DIR}/erik_error.log
@@ -114,6 +121,12 @@ sudo bash -c 'cat > /etc/apache2/sites-available/susanaparati.conf <<EOF
         AllowOverride None
         Require all granted
     </Directory>
+
+    # Rate Limiting configuración
+    <Location "/">
+        SetOutputFilter RATE_LIMIT
+        SetEnv rate-limit 1000
+    </Location>
 
     ErrorDocument 404 /errors/error.html
     ErrorDocument 500 /errors/error.html
