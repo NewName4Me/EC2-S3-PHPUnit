@@ -10,7 +10,7 @@ jobs:
 
     steps:
       # Checkout del repositorio
-      - uses: actions/checkout@vv4.2.1
+      - uses: actions/checkout@v4.2.1
 
       # Cambiar directorio de trabajo a la carpeta PHP
       - name: Cambiar a la carpeta PHP
