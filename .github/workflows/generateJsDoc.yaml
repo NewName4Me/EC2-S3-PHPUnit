@@ -1,7 +1,8 @@
 name: generateJsDoc
 
 on:
-  workflow_dispatch: #! Permite ejecutar manualmente el flujo de trabajo
+  push:
+    branches: [master]
 
 jobs:
   generate-doc: #! Generar documentación de JSDoc
