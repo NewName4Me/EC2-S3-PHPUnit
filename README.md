@@ -1,6 +1,6 @@
 ---
-description: Todo lo necesario para saber como funciona y fue desarrollado este proyecto
 icon: aws
+description: Todo lo necesario para saber como funciona y fue desarrollado este proyecto
 cover: .gitbook/assets/Untitled.jpg
 coverY: 84
 layout:
@@ -65,6 +65,7 @@ layout:
 6. Sitios Virtuales ⇒ se genera otra pagina en el puerto 3030 con una configuración que podría ser completamente a la original en la direccion /var/www/susanaparati
 7. Autenticación de acceso ⇒ a la hora de crear el servidor se generan unos directorios que contienen usuarios que requieren autenticación.  Se generan tal que así : /var/www/erik/usuariosDir/usuario1 que tienen un contraseña dada como usuario1 y nombre usuario1, esta pagina tambien existe en mis documentos del servidor php, es decir si vas a /view/usuariosDir/ habrá carpetas para cada uno de los usuarios, a diferencia del siguiente punto :arrow\_down\_small:
 8. Autenticación de accesos a una página ⇒ esta carpeta a diferencia de la anterior no se genera ningun sitio en nuestro servidor para estos usuarios, pero si intentas acceder a /view/admin te pedira datos de administrador para poder acceder
+9. &#x20;Añadir un rate limit de 500 para que los usuarios no puedan ahogarnos en peticiones
 
 ### Enlaces Diseño Figma
 
