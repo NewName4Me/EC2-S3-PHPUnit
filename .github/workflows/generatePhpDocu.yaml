@@ -1,0 +1,34 @@
+name: phpDocumentor
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  phpdoc:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout del repositorio
+      - uses: actions/checkout@vv4.2.1
+
+      # Cambiar directorio de trabajo a la carpeta PHP
+      - name: Cambiar a la carpeta PHP
+        working-directory: ./PHP
+        run: echo "Trabajando en la carpeta PHP"
+
+      # Ejecutar phpDocumentor usando Docker
+      - name: Generar documentación PHP
+        working-directory: ./PHP
+        run: |
+          docker run --rm -v $(pwd):/data phpdoc/phpdoc:3 -d ./ -t ./docs
+
+      # Commit y push de la documentación generada
+      - name: Commit y push de la documentación
+        working-directory: ./WebPhpEc2
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          git commit -m "Actualizar documentación PHP" || echo "No hay cambios para commitear"
+          git push
