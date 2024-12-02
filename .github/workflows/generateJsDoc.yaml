@@ -36,6 +36,7 @@ jobs:
       - name: Commit y push de la documentación generada
         run: |
           ls
+          git pull
           git add WebAreaS3/out
           git commit -m "Actualizar documentación JSDoc"
           git push --force origin master #! Usa force por posibles problemas de escritura del bot
