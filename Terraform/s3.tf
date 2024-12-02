@@ -8,10 +8,10 @@ resource "aws_s3_bucket" "s3" {
 resource "aws_s3_bucket_public_access_block" "s3_public_block" {
   bucket = aws_s3_bucket.s3.id
 
-  block_public_acls       = false  # Permite ACLs públicas
-  block_public_policy     = false  # Permite políticas públicas
-  ignore_public_acls      = false  # No ignora ACLs públicas
-  restrict_public_buckets = false  # No restringe el acceso público al bucket
+  block_public_acls       = false # Permite ACLs públicas
+  block_public_policy     = false # Permite políticas públicas
+  ignore_public_acls      = false # No ignora ACLs públicas
+  restrict_public_buckets = false # No restringe el acceso público al bucket
 }
 
 # Política para permitir acceso público de lectura
@@ -22,10 +22,17 @@ resource "aws_s3_bucket_policy" "s3_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect    = "Allow"
-        Action    = "s3:GetObject"
-        Principal = "*"
-        Resource  = "arn:aws:s3:::4-bucket/*"  # Aplica a los objetos dentro del bucket
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:PutBucketPolicy",
+          "s3:GetBucketPolicy",
+          "s3:PutObject",
+          "s3:GetObject"
+        ],
+        "Resource" : [
+          "arn:aws:s3:::4-bucket",
+          "arn:aws:s3:::4-bucket/*"
+        ]
       }
     ]
   })
